@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -14,6 +14,30 @@ export default function AuthPage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const router = useRouter()
+
+  // Listen for auth state changes
+  useEffect(() => {
+    console.log('🔧 Setting up auth state listener...')
+    
+    // Check current session
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      console.log('🔧 Current session check:', { session: !!session, error: error?.message })
+    })
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('🔄 Auth state changed:', event, !!session)
+      console.log('👤 Session user:', session?.user?.email || 'none')
+      if (event === 'SIGNED_IN' && session) {
+        console.log('✅ User signed in, redirecting...')
+        // Use router.push for better Next.js integration
+        setTimeout(() => {
+          router.push('/')
+        }, 500)
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [router])
 
   function handleTab(mode: 'sign-in' | 'sign-up') {
     setAuthMode(mode)
@@ -46,14 +70,28 @@ export default function AuthPage() {
     setSuccess(null)
     try {
       if (authMode === "sign-up") {
-        const { error } = await supabase.auth.signUp({ email, password })
+        console.log('🔐 Attempting sign up with:', { email, password: '***' })
+        const { data, error } = await supabase.auth.signUp({ email, password })
+        console.log('📊 Sign up response:', { data: !!data, error: error?.message })
         if (error) throw error
-        setSuccess("Check your email to confirm your account.")
+        console.log('✅ Sign up successful')
+        setSuccess("Account created! Signing you in...")
       } else if (authMode === "sign-in") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password })
+        console.log('🔐 Attempting sign in with:', { email, password: '***' })
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+        console.log('📊 Sign in response:', { 
+          data: !!data, 
+          user: data?.user?.email || 'none',
+          session: !!data?.session,
+          error: error?.message 
+        })
         if (error) throw error
+        console.log('✅ Sign in successful')
         setSuccess("Signed in! Redirecting...")
-        setTimeout(() => router.push("/"), 1000)
+        
+        // Check session immediately after sign in
+        const { data: { session } } = await supabase.auth.getSession()
+        console.log('🔍 Session after sign in:', { session: !!session, user: session?.user?.email || 'none' })
       } else if (authMode === "forgot") {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: window.location.origin + "/auth/reset"

@@ -7,7 +7,7 @@ export default function CreateLeadMagnetSelection() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4 py-12">
       <button
-        onClick={() => router.push('/')}
+        onClick={() => router.push('/dashboard')}
         className="mb-8 text-gray-600 hover:text-gray-900 text-sm underline"
       >
         ← Back to Home
