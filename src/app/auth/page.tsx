@@ -55,7 +55,9 @@ export default function AuthPage() {
         setSuccess("Signed in! Redirecting...")
         setTimeout(() => router.push("/"), 1000)
       } else if (authMode === "forgot") {
-        const { error } = await supabase.auth.resetPasswordForEmail(email)
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: window.location.origin + "/auth/reset"
+        })
         if (error) throw error
         setSuccess("Password reset email sent. Check your inbox.")
       }

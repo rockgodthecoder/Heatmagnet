@@ -1,6 +1,9 @@
 "use client"
 
 import { Home, LayoutDashboard, Magnet, Users } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { supabase } from "@/lib/supabase"
+import { useState, useEffect } from "react"
 
 import {
   Sidebar,
@@ -24,12 +27,6 @@ const items = [
     id: "home",
   },
   {
-    title: "Dashboard",
-    url: "#",
-    icon: LayoutDashboard,
-    id: "dashboard",
-  },
-  {
     title: "Lead Magnets",
     url: "#",
     icon: Magnet,
@@ -50,6 +47,17 @@ interface AppSidebarProps {
 
 export function AppSidebar({ onCreateLeadMagnet, onNavigate }: AppSidebarProps) {
   const { setOpen } = useSidebar()
+  const router = useRouter()
+  const [signingOut, setSigningOut] = useState(false)
+  const [user, setUser] = useState<any>(null)
+
+  useEffect(() => {
+    async function getUser() {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+    }
+    getUser()
+  }, [])
 
   const handleCreateLeadMagnet = () => {
     onCreateLeadMagnet()
@@ -59,6 +67,13 @@ export function AppSidebar({ onCreateLeadMagnet, onNavigate }: AppSidebarProps) 
   const handleMenuClick = (pageId: string) => {
     onNavigate(pageId)
     setOpen(false) // Close sidebar after clicking menu item
+  }
+
+  async function handleSignOut() {
+    setSigningOut(true)
+    await supabase.auth.signOut()
+    setSigningOut(false)
+    router.push("/auth")
   }
 
   return (
@@ -74,7 +89,7 @@ export function AppSidebar({ onCreateLeadMagnet, onNavigate }: AppSidebarProps) 
         {/* Create Button */}
         <div className="mb-8">
           <Button 
-            className="w-full bg-sage/80 text-muted-teal font-semibold rounded-full py-3 shadow-md hover:bg-muted-teal/80 hover:text-sage transition-all duration-200 backdrop-blur" 
+            className="w-full bg-black text-white font-semibold rounded-full py-3 shadow-md hover:bg-gray-800 transition-all duration-200 backdrop-blur" 
             onClick={handleCreateLeadMagnet}
           >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -129,6 +144,35 @@ export function AppSidebar({ onCreateLeadMagnet, onNavigate }: AppSidebarProps) 
               <span className="font-semibold text-sand">+23%</span>
             </div>
           </div>
+        </div>
+        {/* Sign Out Button */}
+        <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 mt-8">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-gray-700 font-semibold text-lg">
+                {user?.email?.charAt(0).toUpperCase() || 'U'}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-semibold text-gray-900 truncate">
+                {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
+              </div>
+              <div className="text-sm text-gray-600 truncate">{user?.email}</div>
+            </div>
+          </div>
+          <Button
+            className="w-full bg-white text-gray-700 font-semibold rounded-lg py-2 shadow-sm hover:bg-gray-50 transition-all duration-200 border border-gray-200 flex items-center justify-center gap-2"
+            onClick={handleSignOut}
+            disabled={signingOut}
+          >
+            {signingOut && (
+              <span className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin inline-block"></span>
+            )}
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            Log out
+          </Button>
         </div>
       </SidebarContent>
     </Sidebar>

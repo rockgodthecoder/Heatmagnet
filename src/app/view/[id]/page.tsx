@@ -127,7 +127,7 @@ export default function ViewDocument() {
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Error</h2>
           <p className="text-gray-600 mb-4">{error || 'Document not found'}</p>
           <button
-            onClick={() => router.push('/dashboard')}
+            onClick={() => router.push('/')}
             className="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-900 transition-colors"
           >
             Back to Dashboard
@@ -151,7 +151,7 @@ export default function ViewDocument() {
             </div>
             <div className="flex items-center gap-4">
               <button
-                onClick={() => router.push('/dashboard')}
+                onClick={() => router.push('/')}
                 className="text-gray-600 hover:text-gray-900 text-sm underline"
               >
                 Back to Dashboard

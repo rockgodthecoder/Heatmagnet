@@ -212,7 +212,7 @@ export default function UploadPdfPage() {
       }
       
       setProgress(100);
-      router.push('/dashboard');
+      router.push('/');
     } catch (err: any) {
       console.error('Upload error:', err);
       setError(err.message || 'Upload failed.');
@@ -304,7 +304,7 @@ export default function UploadPdfPage() {
           </div>
         )}
         <button
-          className="w-full py-3 rounded bg-black text-white font-semibold text-lg disabled:opacity-50"
+          className="w-full py-3 rounded bg-black text-white font-semibold text-lg disabled:opacity-50 hover:bg-gray-800 transition-all duration-200"
           disabled={!pdfFile || !title || isUploading}
           onClick={handleCreateLeadMagnet}
         >

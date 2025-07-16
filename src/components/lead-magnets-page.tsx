@@ -9,27 +9,19 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { supabase } from "@/lib/supabase"
 import type { Document } from "@/lib/types"
 
-export function LeadMagnetsPage() {
+export function LeadMagnetsPage({ onBack }: { onBack: () => void }) {
   const router = useRouter()
   const [viewMode, setViewMode] = useState<"list" | "grid">("list")
   const [documents, setDocuments] = useState<Document[]>([])
-  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function fetchDocuments() {
       try {
-        const { data: { user }, error: userError } = await supabase.auth.getUser()
-        
-        if (userError || !user) {
-          router.push('/auth')
-          return
-        }
-
         const { data, error } = await supabase
           .from('documents')
           .select('*')
-          .eq('user_id', user.id)
           .order('created_at', { ascending: false })
 
         if (error) {
@@ -47,7 +39,7 @@ export function LeadMagnetsPage() {
     }
 
     fetchDocuments()
-  }, [router])
+  }, []) // Removed router from dependency array
 
   const handleViewDocument = (documentId: string) => {
     router.push(`/view/${documentId}`)
@@ -87,7 +79,7 @@ export function LeadMagnetsPage() {
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={() => router.push('/')}
+            onClick={onBack}
             className="flex items-center gap-2 hover:bg-gray-100 rounded-full p-2 transition-all duration-200"
           >
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -141,7 +133,7 @@ export function LeadMagnetsPage() {
             Create your first lead magnet to start collecting leads and tracking engagement with beautiful, interactive content.
           </p>
           <Button
-            onClick={() => router.push('/')}
+            onClick={onBack}
             className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
           >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

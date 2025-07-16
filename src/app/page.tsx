@@ -34,39 +34,6 @@ export default function Page() {
     formType: string
   } | undefined>(undefined)
   const [mode, setMode] = useState<"admin" | "user">("admin")
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    async function checkAuth() {
-      try {
-        const { data: { user }, error } = await supabase.auth.getUser()
-        
-        if (error || !user) {
-          router.push('/auth')
-          return
-        }
-      } catch (err) {
-        console.error('Auth error:', err)
-        router.push('/auth')
-        return
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    checkAuth()
-  }, [router])
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    )
-  }
 
   const handleCreateLeadMagnet = () => {
     setCurrentPage("create-lead-magnet")
@@ -181,7 +148,7 @@ export default function Page() {
                 <div className="flex gap-4">
                   <Button 
                     onClick={handleCreateLeadMagnet}
-                    className="bg-sage/80 text-muted-teal font-bold px-10 py-4 rounded-full shadow-md hover:bg-muted-teal/80 hover:text-sage transition-all duration-200 text-lg font-sans backdrop-blur"
+                    className="bg-black text-white font-bold px-10 py-4 rounded-full shadow-md hover:bg-gray-800 transition-all duration-200 text-lg font-sans backdrop-blur"
                   >
                     Create Lead Magnet
                   </Button>
@@ -282,10 +249,10 @@ export default function Page() {
         {currentPage === "dashboard" && (
           <div className="flex flex-1 flex-col gap-6 p-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Dashboard</h2>
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Lead Magnets</h2>
               <Button 
                 onClick={handleCreateLeadMagnet}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
+                className="bg-black text-white px-6 py-2 rounded-full shadow-lg hover:bg-gray-800 transition-all duration-200 font-semibold"
               >
                 + Create New
               </Button>
@@ -347,7 +314,9 @@ export default function Page() {
           </div>
         )}
 
-        {currentPage === "lead-magnets" && <LeadMagnetsPage />}
+        {currentPage === "lead-magnets" && (
+          <LeadMagnetsPage onBack={() => setCurrentPage('home')} />
+        )}
 
         {currentPage === "leads" && <LeadsPage />}
 
